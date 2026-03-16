@@ -1,0 +1,28 @@
+{
+  "name": "sarahaapp",
+  "version": "1.0.0",
+  "description": "Application to send messages anonymously",
+  "main": "./src/index.js",
+  "scripts": {
+    "start:dev": "cross-env NODE_ENV=development node --watch ./src/index.js",
+    "start": "cross-env NODE_ENV=production node ./src/index.js"
+  },
+  "keywords": [
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "Mongoose",
+    "Joi",
+    "Anonymous Messaging"
+  ],
+  "author": "Eslam Omar(Xeno)",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.0",
+    "morgan": "^1.10.1"
+  }
+}
