@@ -1,5 +1,5 @@
 import { apiError } from "../../common/index.js";
-import { UserModel } from "../../db/model/user.model";
+import { UserModel } from "../../db/model/user.model.js";
 
 export const signupService = async (data) => {
   //check if user exist
@@ -10,4 +10,19 @@ export const signupService = async (data) => {
 
   //create new user
   const newUser = await UserModel.create([data], { validateBeforeSave: true });
+
+  return newUser;
 };
+
+export const logInService = async (data) => {
+  const { email, password } = data;
+  //get user from data base
+  const user = await UserModel.findOne({ email, password });
+  if (user) {
+    return user;
+  } else {
+    apiError({ message: "invalid login credentials", code: 404 });
+  }
+};
+
+UserModel.findOneAndUpdate;
