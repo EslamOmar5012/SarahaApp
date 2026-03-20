@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { genderEnum, providerEnum, roleEnum } from "../../common/index.js";
+import { hashInput } from "../../common/index.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -90,12 +91,18 @@ const userSchema = new mongoose.Schema(
   },
 );
 
+//hash password before save
+userSchema.pre("save", async function () {
+  this.password = await hashInput(this.password);
+});
+
+//add username virtual
 userSchema.virtual("username").set(function (value) {
   const [firstName, lastName] = value.split(" ");
   this.set({ firstName, lastName });
 });
 
-userSchema.virtual("userName").get(function () {
+userSchema.virtual("username").get(function () {
   return this.firstName + " " + this.lastName;
 });
 

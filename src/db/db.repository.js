@@ -12,8 +12,13 @@ export const countDocuments = async ({ model }) => {
   return count;
 };
 
-export const findOne = async ({ model, filter = {}, select = "" }) => {
-  const result = await model.findOne(filter).select(select);
+export const findOne = async ({
+  model,
+  filter = {},
+  select = "",
+  options = {},
+}) => {
+  const result = await model.findOne(filter, {}, options).select(select);
 
   return result;
 };
