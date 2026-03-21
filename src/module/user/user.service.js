@@ -1,4 +1,4 @@
-import { apiError, successResponse } from "../../common/index.js";
+import { apiError, dcrypt, successResponse } from "../../common/index.js";
 import { compareInput } from "../../common/index.js";
 import { UserModel, DBrepository } from "../../db/index.js";
 
@@ -38,6 +38,8 @@ export const logInService = async (data) => {
   if (!comparePassword) {
     apiError({ message: "Invalid login credentials", code: 409 });
   }
+
+  user.phone = dcrypt(user.phone);
 
   delete user.password;
   return user;

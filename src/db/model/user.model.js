@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
-import { genderEnum, providerEnum, roleEnum } from "../../common/index.js";
+import {
+  encrypt,
+  genderEnum,
+  providerEnum,
+  roleEnum,
+} from "../../common/index.js";
 import { hashInput } from "../../common/index.js";
 
 const userSchema = new mongoose.Schema(
@@ -94,6 +99,11 @@ const userSchema = new mongoose.Schema(
 //hash password before save
 userSchema.pre("save", async function () {
   this.password = await hashInput(this.password);
+});
+
+//encrypt phone
+userSchema.pre("save", function () {
+  this.phone = encrypt(this.phone);
 });
 
 //add username virtual
