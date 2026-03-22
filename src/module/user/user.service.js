@@ -1,5 +1,11 @@
-import { apiError, dcrypt, successResponse } from "../../common/index.js";
-import { compareInput } from "../../common/index.js";
+import {
+  apiError,
+  decrypt,
+  compareInput,
+  signToken,
+  audienceEnum,
+  verifyToken,
+} from "../../common/index.js";
 import { UserModel, DBrepository } from "../../db/index.js";
 
 export const signupService = async (data) => {
@@ -18,31 +24,54 @@ export const signupService = async (data) => {
   return newUser;
 };
 
-export const logInService = async (data) => {
-  const { email, password } = data;
+export const signinService = async (email, password, protocol, host) => {
+  //check if request body inputs are right
+  if (!email || !password)
+    apiError({ message: "email or password missed", code: 401 });
 
-  console.log(password);
   //get user from data base
   const user = await DBrepository.findOne({
     model: UserModel,
     filter: { email },
-    select: "-provider -coverPicture -__v",
-    options: { lean: true },
   });
 
-  if (!user) {
-    apiError({ message: "User not found", code: 404 });
-  }
-  const comparePassword = await compareInput(password, user.password);
+  //check if user exist
+  if (!user) apiError({ message: "user not exist", code: 404 });
 
-  if (!comparePassword) {
-    apiError({ message: "Invalid login credentials", code: 409 });
-  }
+  //check if password is right
+  const passwordIsCorrect = compareInput(password, user.password);
 
-  user.phone = dcrypt(user.phone);
+  if (!passwordIsCorrect)
+    apiError({ message: "invalid credentials", code: 409 });
 
-  delete user.password;
-  return user;
+  //create access token
+  const accessToken = signToken({
+    sub: user._id,
+    options: {
+      issuer: `${protocol}://${host}`,
+      audience: [audienceEnum.mobile, audienceEnum.web],
+      expiresIn: "15m",
+    },
+  });
+
+  return accessToken;
 };
 
-UserModel.findOneAndUpdate;
+export const getProfileService = async (token) => {
+  //verify token
+  const verifiedToken = verifyToken(token);
+
+  if (!verifiedToken) apiError({ message: "invalid credentials", code: 409 });
+
+  //get profile data
+  const user = await DBrepository.findById({
+    model: UserModel,
+    id: verifiedToken.sub,
+  });
+
+  user.phone = decrypt(user.phone);
+
+  user.password = undefined;
+
+  return user;
+};

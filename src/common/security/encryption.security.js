@@ -27,7 +27,7 @@ export const encrypt = (plainText) => {
   return `${iv.toString("hex")}:${salt.toString("hex")}:${encryptedText}`;
 };
 
-export const dcrypt = (encryptedText) => {
+export const decrypt = (encryptedText) => {
   const [iv, salt, text] = encryptedText.split(":");
 
   const binaryIV = Buffer.from(iv, "hex");

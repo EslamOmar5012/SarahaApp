@@ -12,12 +12,30 @@ export const signupController = async (req, res, next) => {
   });
 };
 
-export const loginController = async (req, res, next) => {
-  const user = await userService.logInService(req.body);
+export const signinController = async (req, res, next) => {
+  const { email, password } = req.body;
+  const accessToken = await userService.signinService(
+    email,
+    password,
+    req.protocol,
+    req.host,
+  );
 
   successResponse({
     response: res,
     code: 200,
+    message: "user logged in",
+    data: { accessToken },
+  });
+};
+
+export const getProfileController = async (req, res, next) => {
+  const user = await userService.getProfileService(req.headers.authorization);
+
+  successResponse({
+    response: res,
+    code: 200,
+    message: "profile data",
     data: user,
   });
 };

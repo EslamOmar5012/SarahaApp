@@ -7,7 +7,6 @@ export const hashInput = async (input) => {
 };
 
 export const compareInput = async (input, hashedInput) => {
-  console.log(hashedInput);
   const isSame = await compare(input, hashedInput);
   return isSame;
 };
