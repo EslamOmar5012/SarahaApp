@@ -3,9 +3,8 @@ import {
   apiError,
   decrypt,
   compareInput,
-  signToken,
-  audienceEnum,
   verifyToken,
+  createLoginTokens,
 } from "../../common/index.js";
 import { UserModel, DBrepository } from "../../db/index.js";
 
@@ -46,34 +45,21 @@ export const signinService = async (email, password, protocol, host) => {
     apiError({ message: "invalid credentials", code: 409 });
 
   //create access token
-  const accessToken = signToken({
+  const loginTokens = createLoginTokens({
     sub: user._id,
-    signature: envVars.userAccessTokenSecretKey,
-    options: {
-      issuer: `${protocol}://${host}`,
-      audience: [audienceEnum.mobile, audienceEnum.web],
-      expiresIn: 15 * 60,
-    },
+    issuer: `${protocol}://${host}`,
   });
 
-  const refreshToken = signToken({
-    sub: user._id,
-    signature: envVars.userRefreshTokenSecretKey,
-    options: {
-      issuer: `${protocol}://${host}`,
-      audience: [audienceEnum.mobile, audienceEnum.web],
-      expiresIn: 360 * 24 * 60 * 60,
-    },
-  });
-
-  return { accessToken, refreshToken };
+  return loginTokens;
 };
 
 export const getProfileService = async (token) => {
   //verify token
   const verifiedToken = verifyToken(token, envVars.userAccessTokenSecretKey);
 
-  if (!verifiedToken) apiError({ message: "invalid credentials", code: 409 });
+  //check if token is invalid and type of it
+  if (!verifiedToken || verifiedToken?.aud[0] !== "access")
+    apiError({ message: "invalid credentials", code: 409 });
 
   //get profile data
   const user = await DBrepository.findById({
@@ -97,7 +83,9 @@ export const refreshTokenService = async (token, protocol, host) => {
     envVars.userRefreshTokenSecretKey,
   );
 
-  if (!verifiedRefreshToken)
+  console.log(verifiedRefreshToken);
+
+  if (!verifiedRefreshToken || verifiedRefreshToken?.aud[0] !== "refresh")
     apiError({ message: "invalid refresh token", code: 401 });
 
   //check if user still exist
@@ -108,25 +96,10 @@ export const refreshTokenService = async (token, protocol, host) => {
 
   if (!user) apiError({ message: "user doesn't exist", code: 404 });
 
-  const newAccessToken = signToken({
+  const newTokens = createLoginTokens({
     sub: verifiedRefreshToken.sub,
-    signature: envVars.userAccessTokenSecretKey,
-    options: {
-      issuer: `${protocol}://${host}`,
-      audience: [audienceEnum.mobile, audienceEnum.web],
-      expiresIn: 15 * 60,
-    },
+    issuer: `${protocol}://${host}`,
   });
 
-  const newRefreshToken = signToken({
-    sub: verifiedRefreshToken.sub,
-    signature: envVars.userRefreshTokenSecretKey,
-    options: {
-      issuer: `${protocol}://${host}`,
-      audience: [audienceEnum.mobile, audienceEnum.web],
-      expiresIn: 356 * 24 * 60 * 60,
-    },
-  });
-
-  return { newAccessToken, newRefreshToken };
+  return newTokens;
 };

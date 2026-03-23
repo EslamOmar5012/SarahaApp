@@ -8,7 +8,7 @@ export {
   genderEnum,
   providerEnum,
   roleEnum,
-  audienceEnum,
+  tokenTypeEnum,
 } from "./enum/index.js";
 
 export {
@@ -16,6 +16,6 @@ export {
   compareInput,
   encrypt,
   decrypt,
-  signToken,
+  createLoginTokens,
   verifyToken,
 } from "./security/index.js";
