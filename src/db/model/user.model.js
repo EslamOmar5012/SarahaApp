@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
         values: Object.values(roleEnum),
         message: "role is user or admin",
       },
-      default: providerEnum.user,
+      default: roleEnum.user,
     },
     profilePicture: {
       type: String,

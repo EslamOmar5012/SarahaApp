@@ -48,18 +48,38 @@ export const signinService = async (email, password, protocol, host) => {
   const loginTokens = createLoginTokens({
     sub: user._id,
     issuer: `${protocol}://${host}`,
+    role: user.role,
   });
 
   return loginTokens;
 };
 
-export const getProfileService = async (token) => {
+export const getProfileUserService = async (token) => {
   //verify token
   const verifiedToken = verifyToken(token, envVars.userAccessTokenSecretKey);
 
   //check if token is invalid and type of it
   if (!verifiedToken || verifiedToken?.aud[0] !== "access")
     apiError({ message: "invalid credentials", code: 409 });
+
+  //get profile data
+  const user = await DBrepository.findById({
+    model: UserModel,
+    id: verifiedToken.sub,
+  });
+
+  //decrypt phone number
+  user.phone = decrypt(user.phone);
+
+  //delete user password
+  user.password = undefined;
+
+  return user;
+};
+
+export const getProfileAdminService = async (token) => {
+  //verify token
+  const verifiedToken = verifyToken(token, envVars.adminAccessTokenSecretKey);
 
   //get profile data
   const user = await DBrepository.findById({
@@ -83,8 +103,6 @@ export const refreshTokenService = async (token, protocol, host) => {
     envVars.userRefreshTokenSecretKey,
   );
 
-  console.log(verifiedRefreshToken);
-
   if (!verifiedRefreshToken || verifiedRefreshToken?.aud[0] !== "refresh")
     apiError({ message: "invalid refresh token", code: 401 });
 
@@ -99,6 +117,7 @@ export const refreshTokenService = async (token, protocol, host) => {
   const newTokens = createLoginTokens({
     sub: verifiedRefreshToken.sub,
     issuer: `${protocol}://${host}`,
+    role: user.role,
   });
 
   return newTokens;

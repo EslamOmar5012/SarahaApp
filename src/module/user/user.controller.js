@@ -29,8 +29,23 @@ export const signinController = async (req, res, next) => {
   });
 };
 
-export const getProfileController = async (req, res, next) => {
-  const user = await userService.getProfileService(req.headers.authorization);
+export const getProfileUserController = async (req, res, next) => {
+  const user = await userService.getProfileUserService(
+    req.headers.authorization,
+  );
+
+  successResponse({
+    response: res,
+    code: 200,
+    message: "profile data",
+    data: user,
+  });
+};
+
+export const getProfileAdminController = async (req, res, next) => {
+  const user = await userService.getProfileAdminService(
+    req.headers.authorization,
+  );
 
   successResponse({
     response: res,

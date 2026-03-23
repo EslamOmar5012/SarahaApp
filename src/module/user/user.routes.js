@@ -7,7 +7,9 @@ userRouter.post("/signUp", userController.signupController);
 
 userRouter.post("/signin", userController.signinController);
 
-userRouter.get("/profile", userController.getProfileController);
+userRouter.get("/profileUser", userController.getProfileUserController);
+
+userRouter.get("/profileAdmin", userController.getProfileAdminController);
 
 userRouter.get("/refreshToken", userController.refreshTokenController);
 
