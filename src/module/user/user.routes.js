@@ -9,4 +9,6 @@ userRouter.post("/signin", userController.signinController);
 
 userRouter.get("/profile", userController.getProfileController);
 
+userRouter.get("/refreshToken", userController.refreshTokenController);
+
 export { userRouter };

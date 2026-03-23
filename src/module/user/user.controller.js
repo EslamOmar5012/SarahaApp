@@ -14,7 +14,7 @@ export const signupController = async (req, res, next) => {
 
 export const signinController = async (req, res, next) => {
   const { email, password } = req.body;
-  const accessToken = await userService.signinService(
+  const tokens = await userService.signinService(
     email,
     password,
     req.protocol,
@@ -25,7 +25,7 @@ export const signinController = async (req, res, next) => {
     response: res,
     code: 200,
     message: "user logged in",
-    data: { accessToken },
+    data: tokens,
   });
 };
 
@@ -37,5 +37,20 @@ export const getProfileController = async (req, res, next) => {
     code: 200,
     message: "profile data",
     data: user,
+  });
+};
+
+export const refreshTokenController = async (req, res, next) => {
+  const newTokens = await userService.refreshTokenService(
+    req.headers.authorization,
+    req.protocol,
+    req.host,
+  );
+
+  successResponse({
+    response: res,
+    code: 200,
+    message: "tokens refreshed successfully",
+    data: newTokens,
   });
 };

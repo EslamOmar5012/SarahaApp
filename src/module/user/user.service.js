@@ -1,3 +1,4 @@
+import { envVars } from "../../../config/index.js";
 import {
   apiError,
   decrypt,
@@ -47,19 +48,30 @@ export const signinService = async (email, password, protocol, host) => {
   //create access token
   const accessToken = signToken({
     sub: user._id,
+    signature: envVars.userAccessTokenSecretKey,
     options: {
       issuer: `${protocol}://${host}`,
       audience: [audienceEnum.mobile, audienceEnum.web],
-      expiresIn: "15m",
+      expiresIn: 15 * 60,
     },
   });
 
-  return accessToken;
+  const refreshToken = signToken({
+    sub: user._id,
+    signature: envVars.userRefreshTokenSecretKey,
+    options: {
+      issuer: `${protocol}://${host}`,
+      audience: [audienceEnum.mobile, audienceEnum.web],
+      expiresIn: 360 * 24 * 60 * 60,
+    },
+  });
+
+  return { accessToken, refreshToken };
 };
 
 export const getProfileService = async (token) => {
   //verify token
-  const verifiedToken = verifyToken(token);
+  const verifiedToken = verifyToken(token, envVars.userAccessTokenSecretKey);
 
   if (!verifiedToken) apiError({ message: "invalid credentials", code: 409 });
 
@@ -69,9 +81,52 @@ export const getProfileService = async (token) => {
     id: verifiedToken.sub,
   });
 
+  //decrypt phone number
   user.phone = decrypt(user.phone);
 
+  //delete user password
   user.password = undefined;
 
   return user;
+};
+
+export const refreshTokenService = async (token, protocol, host) => {
+  //verify refresh token
+  const verifiedRefreshToken = verifyToken(
+    token,
+    envVars.userRefreshTokenSecretKey,
+  );
+
+  if (!verifiedRefreshToken)
+    apiError({ message: "invalid refresh token", code: 401 });
+
+  //check if user still exist
+  const user = await DBrepository.findById({
+    model: UserModel,
+    id: verifiedRefreshToken.sub,
+  });
+
+  if (!user) apiError({ message: "user doesn't exist", code: 404 });
+
+  const newAccessToken = signToken({
+    sub: verifiedRefreshToken.sub,
+    signature: envVars.userAccessTokenSecretKey,
+    options: {
+      issuer: `${protocol}://${host}`,
+      audience: [audienceEnum.mobile, audienceEnum.web],
+      expiresIn: 15 * 60,
+    },
+  });
+
+  const newRefreshToken = signToken({
+    sub: verifiedRefreshToken.sub,
+    signature: envVars.userRefreshTokenSecretKey,
+    options: {
+      issuer: `${protocol}://${host}`,
+      audience: [audienceEnum.mobile, audienceEnum.web],
+      expiresIn: 356 * 24 * 60 * 60,
+    },
+  });
+
+  return { newAccessToken, newRefreshToken };
 };
