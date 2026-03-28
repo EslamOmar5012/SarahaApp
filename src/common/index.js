@@ -18,4 +18,5 @@ export {
   decrypt,
   createLoginTokens,
   verifyToken,
+  getSignatures,
 } from "./security/index.js";

@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { envVars } from "../../../config/index.js";
 import { tokenTypeEnum } from "../enum/jwt.enum.js";
 
-const getSignatures = (role) => {
+export const getSignatures = (role) => {
   switch (role) {
     case "admin":
       return {

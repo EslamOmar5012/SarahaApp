@@ -29,10 +29,9 @@ export const signinController = async (req, res, next) => {
   });
 };
 
-export const getProfileUserController = async (req, res, next) => {
-  const user = await userService.getProfileUserService(
-    req.headers.authorization,
-  );
+export const getProfileController = async (req, res, next) => {
+  const { token } = req;
+  const user = await userService.getProfileService(token);
 
   successResponse({
     response: res,
@@ -42,24 +41,21 @@ export const getProfileUserController = async (req, res, next) => {
   });
 };
 
-export const getProfileAdminController = async (req, res, next) => {
-  const user = await userService.getProfileAdminService(
-    req.headers.authorization,
-  );
-
+export const adminOnlyController = async (req, res, next) => {
   successResponse({
     response: res,
     code: 200,
-    message: "profile data",
-    data: user,
+    message: "can access admin endpoint",
   });
 };
 
 export const refreshTokenController = async (req, res, next) => {
+  //get data from request
+  const { token, protocol, host } = req;
   const newTokens = await userService.refreshTokenService(
-    req.headers.authorization,
-    req.protocol,
-    req.host,
+    token,
+    protocol,
+    host,
   );
 
   successResponse({

@@ -79,6 +79,9 @@ const userSchema = new mongoose.Schema(
     changeCridintialTime: {
       type: Date,
     },
+    asdw: {
+      type: [String],
+    },
   },
   {
     collection: "Saraha_Users",

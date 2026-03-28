@@ -54,38 +54,15 @@ export const signinService = async (email, password, protocol, host) => {
   return loginTokens;
 };
 
-export const getProfileUserService = async (token) => {
-  //verify token
-  const verifiedToken = verifyToken(token, envVars.userAccessTokenSecretKey);
-
-  //check if token is invalid and type of it
-  if (!verifiedToken || verifiedToken?.aud[0] !== "access")
-    apiError({ message: "invalid credentials", code: 409 });
-
+export const getProfileService = async (token) => {
   //get profile data
   const user = await DBrepository.findById({
     model: UserModel,
-    id: verifiedToken.sub,
+    id: token.sub,
   });
 
-  //decrypt phone number
-  user.phone = decrypt(user.phone);
-
-  //delete user password
-  user.password = undefined;
-
-  return user;
-};
-
-export const getProfileAdminService = async (token) => {
-  //verify token
-  const verifiedToken = verifyToken(token, envVars.adminAccessTokenSecretKey);
-
-  //get profile data
-  const user = await DBrepository.findById({
-    model: UserModel,
-    id: verifiedToken.sub,
-  });
+  //throw error if user not found
+  if (!user) apiError({ message: "user not found", code: 404 });
 
   //decrypt phone number
   user.phone = decrypt(user.phone);
@@ -97,25 +74,16 @@ export const getProfileAdminService = async (token) => {
 };
 
 export const refreshTokenService = async (token, protocol, host) => {
-  //verify refresh token
-  const verifiedRefreshToken = verifyToken(
-    token,
-    envVars.userRefreshTokenSecretKey,
-  );
-
-  if (!verifiedRefreshToken || verifiedRefreshToken?.aud[0] !== "refresh")
-    apiError({ message: "invalid refresh token", code: 401 });
-
   //check if user still exist
   const user = await DBrepository.findById({
     model: UserModel,
-    id: verifiedRefreshToken.sub,
+    id: token.sub,
   });
 
   if (!user) apiError({ message: "user doesn't exist", code: 404 });
 
   const newTokens = createLoginTokens({
-    sub: verifiedRefreshToken.sub,
+    sub: token.sub,
     issuer: `${protocol}://${host}`,
     role: user.role,
   });
