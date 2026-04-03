@@ -1,3 +1,5 @@
 export { default as connectDB } from "./connection.db.js";
-export { UserModel } from "./model/index.js";
-export * as DBrepository from "./db.repository.js";
+
+export * as dbRepo from "./db.repository.js";
+
+export { default as UserModel } from "./models/user.model.js";

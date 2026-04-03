@@ -1,13 +1,8 @@
-class ApiError extends Error{
-    constructor(message, errorCode){
-        super(message);
-        this.errorCode = errorCode;
-    }
+class ApiError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
 }
 
-
-const apiError = ({message, code}) => {
-    throw new ApiError(message, code);
-};
-
-export default apiError;
+export default ApiError;

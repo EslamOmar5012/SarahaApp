@@ -3,22 +3,22 @@ import { envVars } from "../../../config/index.js";
 
 const generateKey = (salt) => {
   const key = crypto.pbkdf2Sync(
-    envVars.encryptionKey,
+    envVars.encryption_secret_key,
     salt,
     100000,
-    32,
+    envVars.key_length,
     "sha512",
   );
+
   return key;
 };
 
-export const encrypt = (plainText) => {
-  const iv = crypto.randomBytes(16);
-  const salt = crypto.randomBytes(64);
-
+const encrypt = async (plainText) => {
+  const iv = crypto.randomBytes(envVars.iv_length);
+  const salt = crypto.randomBytes(envVars.salt_length);
   const key = generateKey(salt);
 
-  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  const cipher = crypto.createCipheriv(envVars.algorithm_type, key, iv);
 
   let encryptedText = cipher.update(plainText, "utf-8", "hex");
 
@@ -27,18 +27,20 @@ export const encrypt = (plainText) => {
   return `${iv.toString("hex")}:${salt.toString("hex")}:${encryptedText}`;
 };
 
-export const decrypt = (encryptedText) => {
-  const [iv, salt, text] = encryptedText.split(":");
+const decrypt = async (encrypted) => {
+  let [iv, salt, encryptedText] = encrypted.split(":");
 
-  const binaryIV = Buffer.from(iv, "hex");
-  const binarySalt = Buffer.from(salt, "hex");
-  const key = generateKey(binarySalt);
+  iv = Buffer.from(iv, "hex");
+  salt = Buffer.from(salt, "hex");
+  const key = generateKey(salt);
 
-  const decipher = crypto.createDecipheriv("aes-256-cbc", key, binaryIV);
+  const decipher = crypto.createDecipheriv(envVars.algorithm_type, key, iv);
 
-  let plainText = decipher.update(text, "hex", "utf-8");
+  let plainText = decipher.update(encryptedText, "hex", "utf-8");
 
   plainText += decipher.final("utf-8");
 
   return plainText;
 };
+
+export { encrypt, decrypt };

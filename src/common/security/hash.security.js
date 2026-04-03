@@ -1,12 +1,14 @@
-import { hash, compare } from "bcrypt";
+import bcrypt from "bcrypt";
 import { envVars } from "../../../config/index.js";
 
-export const hashInput = async (input) => {
-  const hashedInput = await hash(input, +envVars.saltRound);
-  return hashedInput;
+const generateHash = async (plainText) => {
+  const hashedText = await bcrypt.hash(plainText, envVars.salt_round);
+  return hashedText;
 };
 
-export const compareInput = async (input, hashedInput) => {
-  const isSame = await compare(input, hashedInput);
-  return isSame;
+const compareHash = async (plainText, hashedText) => {
+  const isEqual = await bcrypt.compare(plainText, hashedText);
+  return isEqual;
 };
+
+export { generateHash, compareHash };

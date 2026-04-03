@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
+import UserModel from "./models/user.model.js";
 import { envVars } from "../../config/index.js";
-import { UserModel } from "./model/user.model.js";
 
-const connectDB = async () => {
+export default async function CennectDB() {
   try {
-    await mongoose.connect(envVars.dbUrl);
-    await UserModel.syncIndexes();
-    console.log("DB connected successfully 🟢");
-  } catch (error) {
-    console.error("DB Error ❌: ", error.message);
-  }
-};
+    await mongoose.connect(envVars.db_url);
 
-export default connectDB;
+    await UserModel.syncIndexes();
+
+    console.log("DB connected 🟢");
+  } catch (error) {
+    console.error("DB error ❌ : ", error.message);
+  }
+}

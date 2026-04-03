@@ -1,3 +1,8 @@
 import bootstrap from "./app.bootstrap.js";
+import { encrypt } from "./common/index.js";
 
-bootstrap();
+await bootstrap();
+
+const text1 = await encrypt("Eslam Omar");
+
+// console.log(text1);

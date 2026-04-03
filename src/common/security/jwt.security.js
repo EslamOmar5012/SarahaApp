@@ -1,43 +1,47 @@
 import jwt from "jsonwebtoken";
 import { envVars } from "../../../config/index.js";
-import { tokenTypeEnum } from "../enum/jwt.enum.js";
 
-export const getSignatures = (role) => {
+const getTokenCredentials = (role) => {
   switch (role) {
+    case "user":
+      return {
+        access: envVars.user_access_secret_key,
+        refresh: envVars.user_refresh_secret_key,
+      };
     case "admin":
       return {
-        access: envVars.adminAccessTokenSecretKey,
-        refresh: envVars.adminRefreshTokenSecretKey,
-      };
-    default:
-      return {
-        access: envVars.userAccessTokenSecretKey,
-        refresh: envVars.userRefreshTokenSecretKey,
+        access: envVars.admin_access_secret_key,
+        refresh: envVars.admin_refresh_secret_key,
       };
   }
 };
 
-export const verifyToken = (token, secretKey) => {
-  const verifiedToken = jwt.verify(token, secretKey);
+const generateTokens = (role, payload, issuer) => {
+  const tokenCredentials = getTokenCredentials(role);
 
-  return verifiedToken;
-};
-
-export const createLoginTokens = ({ sub, issuer, role }) => {
-  //get signature level
-  const tokens = getSignatures(role);
-
-  const accessToken = jwt.sign({ sub }, tokens.access, {
+  const accessToken = jwt.sign({ sub: payload }, tokenCredentials.access, {
     issuer,
-    audience: [tokenTypeEnum.access, role],
-    expiresIn: envVars.userAccessTokenExpireTime,
+    audience: [role, "access"],
+    expiresIn: envVars.access_token_ttl,
   });
 
-  const refreshToken = jwt.sign({ sub }, tokens.refresh, {
+  const refreshToken = jwt.sign({ sup: payload }, tokenCredentials.refresh, {
     issuer,
-    audience: [tokenTypeEnum.refresh, role],
-    expiresIn: envVars.userRefreshTokenExpireTime,
+    audience: [role, "refresh"],
+    expiresIn: envVars.refresh_token_ttl,
   });
 
   return { accessToken, refreshToken };
 };
+
+const verifyToken = (token) => {
+  const tokenData = jwt.decode(token);
+
+  const tokenCredentials = getTokenCredentials(tokenData?.aud[0]);
+
+  const verifiedToken = jwt.verify(token, tokenCredentials[tokenData?.aud[1]]);
+
+  return verifiedToken;
+};
+
+export { generateTokens, verifyToken };
