@@ -6,3 +6,9 @@ export const signup = async (req, res, next) => {
 
   onSuccessRespons(res, `User created successfully, Wellcome ${username}`, 201);
 };
+
+export const login = async (req, res, next) => {
+  const tokens = await service.login(req.body, `${req.protocol}://${req.host}`);
+
+  onSuccessRespons(res, "User logged in successfully", 200, tokens);
+};

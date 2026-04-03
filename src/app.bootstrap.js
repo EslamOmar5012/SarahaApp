@@ -7,7 +7,7 @@ import {
   notFoundResponse,
   onSuccessRespons,
 } from "./common/index.js";
-import { authRouter } from "./modules/index.js";
+import { authRouter, userRouter } from "./modules/index.js";
 import morgan from "morgan";
 
 export default async function bootstrap() {
@@ -24,6 +24,7 @@ export default async function bootstrap() {
   });
 
   app.use("/auth", authRouter);
+  app.use("/user", userRouter);
 
   app.use("{/*dummy}", (req, res, next) => {
     notFoundResponse(res, "Route not found");

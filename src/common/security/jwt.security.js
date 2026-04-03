@@ -34,12 +34,12 @@ const generateTokens = (role, payload, issuer) => {
   return { accessToken, refreshToken };
 };
 
-const verifyToken = (token) => {
+const verifyToken = (token, tokenType) => {
   const tokenData = jwt.decode(token);
 
   const tokenCredentials = getTokenCredentials(tokenData?.aud[0]);
 
-  const verifiedToken = jwt.verify(token, tokenCredentials[tokenData?.aud[1]]);
+  const verifiedToken = jwt.verify(token, tokenCredentials[tokenType]);
 
   return verifiedToken;
 };
