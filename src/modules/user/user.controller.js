@@ -6,3 +6,7 @@ export const getProfile = async (req, res, next) => {
 
   onSuccessRespons(res, "user data retrieved successfully", 200, user);
 };
+
+export const adminOnly = async (req, res, next) => {
+  onSuccessRespons(res, "user have access", 200);
+};

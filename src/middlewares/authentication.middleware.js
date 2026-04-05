@@ -9,6 +9,7 @@ const authentication = (tokenType) => {
     if (!verifiedToken) conflictError("invalid credentials");
 
     req.user = String(verifiedToken.sub);
+    req.token = verifiedToken;
 
     next();
   };
