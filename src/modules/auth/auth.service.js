@@ -44,3 +44,18 @@ export const login = async (inputs, issuer) => {
 
   return tokens;
 };
+
+export const refreshTokens = async (userId, issuer) => {
+  //check if user exist
+  const user = await dbRepo.findById({
+    model: UserModel,
+    id: userId,
+    select: "-password",
+  });
+
+  if (!user) notFoundError("User dosn't exist any more");
+
+  const newTokens = generateTokens(user.role, user._id, issuer);
+
+  return newTokens;
+};

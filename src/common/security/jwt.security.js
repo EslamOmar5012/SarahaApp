@@ -25,7 +25,7 @@ const generateTokens = (role, payload, issuer) => {
     expiresIn: envVars.access_token_ttl,
   });
 
-  const refreshToken = jwt.sign({ sup: payload }, tokenCredentials.refresh, {
+  const refreshToken = jwt.sign({ sub: payload }, tokenCredentials.refresh, {
     issuer,
     audience: [role, "refresh"],
     expiresIn: envVars.refresh_token_ttl,
