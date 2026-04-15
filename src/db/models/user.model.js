@@ -29,9 +29,18 @@ const userSchema = new mongoose.Schema(
         "invalid email format",
       ],
     },
+    confirmEmail: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
-      required: [true, "password is required"],
+      required: [
+        function () {
+          return this.provider === ProviderEnum.system ? true : false;
+        },
+        "password is required",
+      ],
       match: [
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
         "Invalid password format",
@@ -39,7 +48,12 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, "phone is required"],
+      required: [
+        function () {
+          return this.provider === ProviderEnum.system ? true : false;
+        },
+        "phone is required",
+      ],
     },
     provider: {
       type: String,
@@ -95,6 +109,7 @@ userSchema
   });
 
 userSchema.pre("save", async function () {
+  if (this.provider !== ProviderEnum.system) return;
   this.password = await generateHash(this.password);
   this.phone = await encrypt(this.phone);
 });

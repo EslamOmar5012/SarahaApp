@@ -9,6 +9,7 @@ import {
 } from "./common/index.js";
 import { authRouter, userRouter } from "./modules/index.js";
 import morgan from "morgan";
+import cors from "cors";
 
 export default async function bootstrap() {
   const app = express();
@@ -16,6 +17,8 @@ export default async function bootstrap() {
   await connectDB();
 
   app.use(express.json());
+
+  app.use(cors());
 
   if (env.NODE_ENV === "development") app.use(morgan("combined"));
 

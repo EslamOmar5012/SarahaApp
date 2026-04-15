@@ -7,6 +7,11 @@ export const signup = async (req, res, next) => {
   onSuccessRespons(res, `User created successfully, Wellcome ${username}`, 201);
 };
 
+export const signupGmail = async (req, res, next) => {
+  const result = await service.signupGmail(req.body);
+  onSuccessRespons(res, "success", 200, result);
+};
+
 export const login = async (req, res, next) => {
   const tokens = await service.login(req.body, `${req.protocol}://${req.host}`);
 

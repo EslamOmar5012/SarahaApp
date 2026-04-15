@@ -6,7 +6,11 @@ const authRouter = Router();
 
 authRouter.post("/signup", controller.signup);
 
+authRouter.post("/signup/gmail", controller.signupGmail);
+
 authRouter.post("/login", controller.login);
+
+authRouter.post("login/gmail", controller.loginGmail);
 
 authRouter.get(
   "/refresh-token",

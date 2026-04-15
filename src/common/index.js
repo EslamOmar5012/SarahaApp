@@ -13,6 +13,8 @@ export { encrypt, decrypt } from "./security/encryption.security.js";
 
 export { generateTokens, verifyToken } from "./security/jwt.security.js";
 
+export { default as verifyGoogleToken } from "./security/googleAuth.security.js";
+
 export { default as conflictError } from "./errors/conflictError.errors.js";
 
 export { default as notFoundError } from "./errors/notFoundError.errors.js";

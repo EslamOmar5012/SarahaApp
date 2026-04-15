@@ -3,6 +3,8 @@ import {
   notFoundError,
   compareHash,
   generateTokens,
+  verifyGoogleToken,
+  ProviderEnum,
 } from "../../common/index.js";
 import { dbRepo, UserModel } from "../../db/index.js";
 
@@ -20,6 +22,57 @@ export const signup = async (inputs) => {
   const [user] = await dbRepo.create({ model: UserModel, data: [inputs] });
 
   return user.username;
+};
+
+export const signupGmail = async (bodyData) => {
+  const { idToken } = bodyData;
+
+  const payload = await verifyGoogleToken(idToken);
+
+  if (!payload.email_verified) conflictError("Email isn't verified");
+
+  const user = await dbRepo.findOne({
+    model: UserModel,
+    filter: { email: payload.email },
+  });
+
+  if (user) {
+    if (user.providor === ProviderEnum.system)
+      conflictError("user already exist please login with system email");
+
+    return "login";
+  }
+  await dbRepo.create({
+    model: UserModel,
+    data: [
+      {
+        username: payload.name,
+        email: payload.email,
+        profilePic: payload.picture,
+        provider: ProviderEnum.google,
+        confirmEmail: true,
+      },
+    ],
+  });
+
+  //   {
+  //   iss: 'https://accounts.google.com',
+  //   azp: '247901318303-v6a9kkutbij1pnq1dd3n98spd1jg3oln.apps.googleusercontent.com',
+  //   aud: '247901318303-v6a9kkutbij1pnq1dd3n98spd1jg3oln.apps.googleusercontent.com',
+  //   sub: '103294969917778131802',
+  //   email: 'eslamelkhabery60@gmail.com',
+  //   email_verified: true,
+  //   nbf: 1776194478,
+  //   name: 'Eslam Elkhabery',
+  //   picture: 'https://lh3.googleusercontent.com/a/ACg8ocJPq9UTXCN-gWEQvrJ3t9-b-ZTwYrVMl9dOtnZTlsbOlNIoyA=s96-c',
+  //   given_name: 'Eslam',
+  //   family_name: 'Elkhabery',
+  //   iat: 1776194778,
+  //   exp: 1776198378,
+  //   jti: 'aa16fed20675a4b2688a0a9470630c52980d4ac0'
+  // }
+
+  // const userid = payload["sub"];
 };
 
 export const login = async (inputs, issuer) => {
