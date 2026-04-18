@@ -1,4 +1,4 @@
-import { decrypt, notFoundError } from "../../common/index.js";
+import { decrypt, notFoundError, ProviderEnum } from "../../common/index.js";
 import { dbRepo, UserModel } from "../../db/index.js";
 
 export const getProfile = async (userID) => {
@@ -10,7 +10,8 @@ export const getProfile = async (userID) => {
 
   if (!user) notFoundError("user doesn't exist");
 
-  user.phone = await decrypt(user.phone);
+  if (user.provider === ProviderEnum.system)
+    user.phone = await decrypt(user.phone);
 
   return user;
 };

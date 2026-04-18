@@ -8,6 +8,7 @@ const globalErrorResponse = (error, res) => {
   return res.status(error.code || 500).json({
     status: "error",
     message: error.message,
+    data: error.data,
     stack: env.NODE_ENV === "development" ? error.stack : undefined,
   });
 };

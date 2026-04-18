@@ -18,3 +18,5 @@ export { default as verifyGoogleToken } from "./security/googleAuth.security.js"
 export { default as conflictError } from "./errors/conflictError.errors.js";
 
 export { default as notFoundError } from "./errors/notFoundError.errors.js";
+
+export { default as validationError } from "./errors/validation.errors.js";

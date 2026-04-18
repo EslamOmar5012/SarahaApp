@@ -24,7 +24,7 @@ export const signup = async (inputs) => {
   return user.username;
 };
 
-export const signupGmail = async (bodyData) => {
+export const signupGmail = async (bodyData, issuer) => {
   const { idToken } = bodyData;
 
   const payload = await verifyGoogleToken(idToken);
@@ -40,9 +40,9 @@ export const signupGmail = async (bodyData) => {
     if (user.providor === ProviderEnum.system)
       conflictError("user already exist please login with system email");
 
-    return "login";
+    return ["login", await loginGmail(bodyData, issuer)];
   }
-  await dbRepo.create({
+  const newUser = await dbRepo.create({
     model: UserModel,
     data: [
       {
@@ -54,6 +54,8 @@ export const signupGmail = async (bodyData) => {
       },
     ],
   });
+
+  return ["signup", newUser];
 
   //   {
   //   iss: 'https://accounts.google.com',
@@ -87,11 +89,37 @@ export const login = async (inputs, issuer) => {
     select: "-__v",
   });
 
-  if (!user) notFoundError("user don't exist");
+  if (!user || user.provider === ProviderEnum.google)
+    notFoundError("user don't exist");
 
   //check if password is right
   const checkPassword = await compareHash(password, user.password);
   if (!checkPassword) conflictError("Invalid credentials");
+
+  const tokens = generateTokens(user.role, user._id, issuer);
+
+  return tokens;
+};
+
+export const loginGmail = async (bodyData, issuer) => {
+  const { idToken } = bodyData;
+
+  const payload = await verifyGoogleToken(idToken);
+
+  if (!payload.email_verified) conflictError("user isn't verified");
+
+  const user = await dbRepo.findOne({
+    model: UserModel,
+    filter: { email: payload.email, provider: ProviderEnum.google },
+  });
+
+  if (!user) {
+    const newUser = await signupGmail(idToken);
+
+    const tokens = generateTokens(newUser.role, newUser._id, issuer);
+
+    return tokens;
+  }
 
   const tokens = generateTokens(user.role, user._id, issuer);
 

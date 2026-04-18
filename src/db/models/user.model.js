@@ -5,6 +5,7 @@ import {
   ProviderEnum,
   RoleEnum,
 } from "../../common/index.js";
+import { genderEnum } from "../../common/enums/auth.enum.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -70,6 +71,14 @@ const userSchema = new mongoose.Schema(
         message: "Invalid provider",
       },
       default: RoleEnum.user,
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: Object.values(genderEnum),
+        message: "gender must be male or female",
+      },
+      default: genderEnum.male,
     },
     profilePic: {
       type: String,
