@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { authentication } from "../../middlewares/index.js";
+import { authentication, validation } from "../../middlewares/index.js";
 import * as controller from "./auth.controller.js";
+import { signupSchema } from "./auth.validation.js";
 
 const authRouter = Router();
 
-authRouter.post("/signup", controller.signup);
+authRouter.post("/signup", validation(signupSchema), controller.signup);
 
 authRouter.post("/signup/gmail", controller.signupGmail);
 

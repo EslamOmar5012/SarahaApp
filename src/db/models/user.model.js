@@ -4,8 +4,8 @@ import {
   generateHash,
   ProviderEnum,
   RoleEnum,
+  GenderEnum,
 } from "../../common/index.js";
-import { genderEnum } from "../../common/enums/auth.enum.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -75,10 +75,15 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: {
-        values: Object.values(genderEnum),
+        values: Object.values(GenderEnum),
         message: "gender must be male or female",
       },
-      default: genderEnum.male,
+      default: GenderEnum.male,
+    },
+    age: {
+      type: Number,
+      min: [13, "age must be more than 13"],
+      max: [60, "age must be less than 60"],
     },
     profilePic: {
       type: String,

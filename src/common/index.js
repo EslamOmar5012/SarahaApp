@@ -5,7 +5,7 @@ export {
   globalErrorResponse,
 } from "./responses/error.responses.js";
 
-export { ProviderEnum, RoleEnum } from "./enums/auth.enum.js";
+export { ProviderEnum, RoleEnum, GenderEnum } from "./enums/auth.enum.js";
 
 export { generateHash, compareHash } from "./security/hash.security.js";
 

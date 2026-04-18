@@ -8,9 +8,9 @@ const RoleEnum = {
   user: "user",
 };
 
-const genderEnum = {
+const GenderEnum = {
   male: "male",
   female: "female",
 };
 
-export { ProviderEnum, RoleEnum, genderEnum };
+export { ProviderEnum, RoleEnum, GenderEnum };
